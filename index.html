@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Macro Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .radio-option {
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .radio-option input[type="radio"] {
+            display: none;
+        }
+
+        .radio-option label {
+            display: block;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .radio-option input[type="radio"]:checked+label {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .radio-option label:hover {
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .results {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .results h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 22px;
+            text-align: center;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            color: #555;
+            font-weight: 600;
+        }
+
+        .result-value {
+            color: #667eea;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .unit {
+            font-size: 14px;
+            color: #888;
+            font-weight: 400;
+        }
+
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>💪 Macro Calculator</h1>
+        <p class="subtitle">Calculate your personalized macronutrient split</p>
+
+        <form id="macroForm">
+            <div class="form-group">
+                <label for="currentWeight">Current Weight (lbs)</label>
+                <input type="number" id="currentWeight" min="1" step="1" required>
+                <div class="error" id="currentWeightError">Please enter a valid weight</div>
+            </div>
+
+            <div class="form-group">
+                <label for="targetWeight">Target Weight (lbs)</label>
+                <input type="number" id="targetWeight" min="1" step="1" required>
+                <div class="error" id="targetWeightError">Please enter a valid weight</div>
+            </div>
+
+            <div class="form-group">
+                <label>Gainer Type</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="hardGainer" name="gainerType" value="hard" required>
+                        <label for="hardGainer">Hard Gainer</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="neutral" name="gainerType" value="neutral" checked>
+                        <label for="neutral">Neutral</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="easyGainer" name="gainerType" value="easy">
+                        <label for="easyGainer">Easy Gainer</label>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+
+        <div class="results" id="results">
+            <h2>Your Macro Split</h2>
+            <div class="result-item">
+                <span class="result-label">Total Calories</span>
+                <span class="result-value" id="totalCalories">0 <span class="unit">kcal</span></span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Protein</span>
+                <span class="result-value" id="protein">0 <span class="unit">g</span></span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Carbs</span>
+                <span class="result-value" id="carbs">0 <span class="unit">g</span></span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Fat</span>
+                <span class="result-value" id="fat">0 <span class="unit">g</span></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calculateMacros() {
+            // Get form values
+            const currentWeight = parseFloat(document.getElementById('currentWeight').value);
+            const targetWeight = parseFloat(document.getElementById('targetWeight').value);
+            const gainerType = document.querySelector('input[name="gainerType"]:checked').value;
+
+            // Validate inputs
+            if (!currentWeight || currentWeight <= 0) {
+                document.getElementById('currentWeightError').classList.add('show');
+                document.getElementById('results').classList.remove('show');
+                return;
+            } else {
+                document.getElementById('currentWeightError').classList.remove('show');
+            }
+
+            if (!targetWeight || targetWeight <= 0) {
+                document.getElementById('targetWeightError').classList.add('show');
+                document.getElementById('results').classList.remove('show');
+                return;
+            } else {
+                document.getElementById('targetWeightError').classList.remove('show');
+            }
+
+            // Calculate weight change
+            const weightChange = targetWeight - currentWeight;
+
+            // Determine base multiplier (starts at 14 for maintenance)
+            let multiplier = 14;
+
+            // Calculate adjustment based on weight change
+            // Fluid adjustment: for every 5 lbs of change beyond 1 lb, adjust by ±1
+            if (Math.abs(weightChange) > 1) {
+                const adjustment = (Math.abs(weightChange) - 1) / 5;
+
+                if (weightChange > 0) {
+                    // Gaining weight - increase multiplier
+                    multiplier += adjustment;
+                } else {
+                    // Losing weight - decrease multiplier
+                    multiplier -= adjustment;
+                }
+            }
+
+            // Adjust multiplier based on gainer type
+            if (gainerType === 'easy') {
+                multiplier -= 1;
+            } else if (gainerType === 'hard') {
+                multiplier += 1;
+            }
+
+            // Calculate total calories (round up)
+            const totalCalories = Math.ceil(currentWeight * multiplier);
+
+            // Calculate fat (grams, round up)
+            const fat = Math.ceil((0.25 * totalCalories) / 9);
+
+            // Calculate protein (grams, round up) - using target weight
+            const protein = Math.ceil(targetWeight);
+
+            // Calculate carbs (grams, round up)
+            const carbs = Math.ceil((totalCalories - (fat * 9) - (protein * 4)) / 4);
+
+            // Display results
+            document.getElementById('totalCalories').innerHTML = `${totalCalories} <span class="unit">kcal</span>`;
+            document.getElementById('protein').innerHTML = `${protein} <span class="unit">g</span>`;
+            document.getElementById('carbs').innerHTML = `${carbs} <span class="unit">g</span>`;
+            document.getElementById('fat').innerHTML = `${fat} <span class="unit">g</span>`;
+
+            // Show results section
+            document.getElementById('results').classList.add('show');
+        }
+
+        // Add event listeners to all inputs
+        document.getElementById('currentWeight').addEventListener('input', calculateMacros);
+        document.getElementById('targetWeight').addEventListener('input', calculateMacros);
+
+        // Add event listeners to all radio buttons
+        document.querySelectorAll('input[name="gainerType"]').forEach(radio => {
+            radio.addEventListener('change', calculateMacros);
+        });
+    </script>
+</body>
+
+</html>
